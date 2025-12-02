@@ -5,15 +5,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-def _load_env_from_dotenv(env_path: Path | None = None) -> None:
-    """Populate ``os.environ`` with values from a ``.env`` file if it exists.
+def _load_env_from_venv(env_path: Path = Path(".venv")) -> None:
+    """Populate ``os.environ`` with values from a ``.venv`` file if it exists.
 
-    The ``.env`` file is expected to live alongside ``main.py``. If a custom
-    path is provided, it will be used instead.
+    Uses ``python-dotenv`` for parsing so comments, blank lines, and quoted
+    values are handled consistently with standard ``.env`` semantics.
     """
-
-    if env_path is None:
-        env_path = Path(__file__).resolve().parent / ".env"
 
     load_dotenv(dotenv_path=env_path, override=True)
 
@@ -42,7 +39,7 @@ def load_settings() -> Settings:
     - PING_TIMEOUT_SECONDS: ping timeout (default: 1)
     """
 
-    _load_env_from_dotenv()
+    _load_env_from_venv()
 
     token = os.environ.get("TELEGRAM_TOKEN")
     chat_id_raw = os.environ.get("TELEGRAM_CHAT_ID")
