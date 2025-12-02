@@ -266,7 +266,12 @@ async def manual_check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(message)
 
 
-async def scheduled_check(job: Job) -> None:
+async def scheduled_check(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+    if not job:
+        logger.warning("Scheduled check called without job context")
+        return
+
     settings: Settings = job.data["settings"]
     bot = job.application.bot
     await check_cameras(settings, bot)
