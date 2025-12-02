@@ -3,6 +3,31 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+def _load_env_from_venv(env_path: Path = Path(".venv")) -> None:
+    """Populate ``os.environ`` with values from a ``.venv`` file if it exists.
+
+    The ``.venv`` file is expected to contain ``KEY=VALUE`` pairs, one per line.
+    Lines starting with ``#`` or without an equals sign are ignored. Values are
+    stripped of surrounding whitespace but otherwise left untouched.
+    """
+
+    if not env_path.exists() or not env_path.is_file():
+        return
+
+    with env_path.open() as file:
+        for line in file:
+            stripped = line.strip()
+
+            if not stripped or stripped.startswith("#"):
+                continue
+
+            if "=" not in stripped:
+                continue
+
+            key, value = stripped.split("=", maxsplit=1)
+            os.environ[key.strip()] = value.strip()
+
+
 class SettingsError(Exception):
     """Raised when required settings are missing or invalid."""
 
@@ -26,6 +51,8 @@ def load_settings() -> Settings:
     - CHECK_INTERVAL_SECONDS: monitoring interval (default: 300)
     - PING_TIMEOUT_SECONDS: ping timeout (default: 1)
     """
+
+    _load_env_from_venv()
 
     token = os.environ.get("TELEGRAM_TOKEN")
     chat_id_raw = os.environ.get("TELEGRAM_CHAT_ID")
