@@ -6,7 +6,7 @@ from telegram import Bot
 
 from config import Settings
 from ping import ping_host
-from storage import Camera, read_cameras, write_cameras
+from storage import Camera, read_cameras, read_subscribers, write_cameras
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +58,7 @@ def update_camera_status(camera: Camera, ping_timeout: int) -> Camera:
 
 async def check_cameras(settings: Settings, bot: Bot) -> List[str]:
     cameras = read_cameras(settings.cameras_file)
+    subscribers = read_subscribers(settings.subscribers_file)
     notifications: List[str] = []
 
     for camera in cameras:
@@ -70,10 +71,14 @@ async def check_cameras(settings: Settings, bot: Bot) -> List[str]:
 
     write_cameras(settings.cameras_file, cameras)
 
+    unique_recipients = set(subscribers)
+    unique_recipients.add(settings.chat_id)
+
     for note in notifications:
-        try:
-            await bot.send_message(chat_id=settings.chat_id, text=note)
-        except Exception:  # Telegram errors should not stop monitoring
-            logger.exception("Failed to send notification")
+        for recipient in unique_recipients:
+            try:
+                await bot.send_message(chat_id=recipient, text=note)
+            except Exception:  # Telegram errors should not stop monitoring
+                logger.exception("Failed to send notification")
 
     return notifications

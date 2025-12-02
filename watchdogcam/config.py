@@ -53,6 +53,7 @@ class Settings:
     token: str
     chat_id: int
     cameras_file: Path
+    subscribers_file: Path
     check_interval_seconds: int = 300
     ping_timeout_seconds: int = 1
 
@@ -64,6 +65,7 @@ def load_settings() -> Settings:
     - TELEGRAM_TOKEN: Telegram bot token (required)
     - TELEGRAM_CHAT_ID: chat id for notifications (required)
     - CAMERAS_FILE: path to cameras JSON file (default: cameras.json)
+    - SUBSCRIBERS_FILE: path to subscribers JSON file (default: subscribers.json)
     - CHECK_INTERVAL_SECONDS: monitoring interval (default: 300)
     - PING_TIMEOUT_SECONDS: ping timeout (default: 1)
     """
@@ -74,6 +76,7 @@ def load_settings() -> Settings:
     token = os.environ.get("TELEGRAM_TOKEN")
     chat_id_raw = os.environ.get("TELEGRAM_CHAT_ID")
     cameras_file_raw = os.environ.get("CAMERAS_FILE", "cameras.json")
+    subscribers_file_raw = os.environ.get("SUBSCRIBERS_FILE", "subscribers.json")
     check_interval_raw = os.environ.get("CHECK_INTERVAL_SECONDS")
     ping_timeout_raw = os.environ.get("PING_TIMEOUT_SECONDS")
 
@@ -94,6 +97,7 @@ def load_settings() -> Settings:
         token=token,
         chat_id=chat_id,
         cameras_file=Path(cameras_file_raw),
+        subscribers_file=Path(subscribers_file_raw),
         check_interval_seconds=check_interval_seconds,
         ping_timeout_seconds=ping_timeout_seconds,
     )
