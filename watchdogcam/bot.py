@@ -17,7 +17,14 @@ from telegram.ext import (
 
 from config import Settings
 from monitor import check_cameras
-from storage import Camera, find_camera, read_cameras, write_cameras
+from storage import (
+    Camera,
+    find_camera,
+    read_cameras,
+    read_subscribers,
+    write_cameras,
+    write_subscribers,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +32,9 @@ ADD_NAME, ADD_IP, DELETE_TARGET, EDIT_TARGET, EDIT_FIELD, EDIT_VALUE = range(6)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    settings: Settings = context.bot_data["settings"]
+    chat_id = update.effective_chat.id if update.effective_chat else None
+
     text = (
         "Привет, я бот мониторинга камер.\n"
         "Я каждые 5 минут проверяю доступность камер и присылаю уведомления, если что-то меняется.\n\n"
@@ -37,6 +47,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "• /edit – изменить камеру\n"
         "• /delete – удалить камеру"
     )
+    if chat_id is not None:
+        subscribers = read_subscribers(settings.subscribers_file)
+        if chat_id not in subscribers:
+            subscribers.append(chat_id)
+            write_subscribers(settings.subscribers_file, subscribers)
+            text += "\n\nВы подписаны на уведомления об изменении статуса камер."
+
     await update.message.reply_text(text)
 
 

@@ -7,6 +7,7 @@ from typing import Dict, List
 logger = logging.getLogger(__name__)
 
 Camera = Dict[str, object]
+SubscriberId = int
 
 
 def _ensure_file(path: Path) -> None:
@@ -34,6 +35,28 @@ def write_cameras(path: Path, cameras: List[Camera]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with temp_path.open("w", encoding="utf-8") as fh:
         json.dump(cameras, fh, ensure_ascii=False, indent=2)
+    shutil.move(str(temp_path), path)
+
+
+def read_subscribers(path: Path) -> list[SubscriberId]:
+    _ensure_file(path)
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+            if isinstance(data, list):
+                return [int(chat_id) for chat_id in data]
+            logger.warning("Subscriber file does not contain a list, resetting")
+            return []
+    except json.JSONDecodeError:
+        logger.exception("Invalid JSON in subscriber file; resetting to empty list")
+        return []
+
+
+def write_subscribers(path: Path, subscribers: list[SubscriberId]) -> None:
+    temp_path = path.with_suffix(".tmp")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with temp_path.open("w", encoding="utf-8") as fh:
+        json.dump(subscribers, fh, ensure_ascii=False, indent=2)
     shutil.move(str(temp_path), path)
 
 
