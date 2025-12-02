@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 
 def _load_env_from_venv(env_path: Path = Path(".venv")) -> None:
@@ -69,6 +69,7 @@ def load_settings() -> Settings:
     """
 
     _load_env_from_venv()
+    _load_env_from_dotenv()
 
     token = os.environ.get("TELEGRAM_TOKEN")
     chat_id_raw = os.environ.get("TELEGRAM_CHAT_ID")
@@ -77,9 +78,9 @@ def load_settings() -> Settings:
     ping_timeout_raw = os.environ.get("PING_TIMEOUT_SECONDS")
 
     if not token:
-        raise SettingsError(f"TELEGRAM_TOKEN is not set (проверьте {env_path})")
+        raise SettingsError("TELEGRAM_TOKEN is not set")
     if not chat_id_raw:
-        raise SettingsError(f"TELEGRAM_CHAT_ID is not set (проверьте {env_path})")
+        raise SettingsError("TELEGRAM_CHAT_ID is not set")
 
     try:
         chat_id = int(chat_id_raw)
