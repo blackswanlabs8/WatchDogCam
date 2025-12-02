@@ -19,6 +19,35 @@ class SettingsError(Exception):
     """Raised when required settings are missing or invalid."""
 
 
+def _load_env_from_dotenv(env_path: Path | None = None) -> None:
+    """Populate ``os.environ`` with values from a ``.env`` file.
+
+    The function prioritizes the `.env` file located next to ``main.py`` but
+    will also search from the current working directory using ``find_dotenv``.
+    If no file is found, a :class:`SettingsError` is raised with the inspected
+    paths to help debug missing secrets.
+    """
+
+    primary_path = env_path or Path(__file__).resolve().parent / ".env"
+    candidate_paths: list[Path] = [primary_path]
+
+    discovered = find_dotenv(usecwd=True)
+    if discovered:
+        discovered_path = Path(discovered)
+        if discovered_path not in candidate_paths:
+            candidate_paths.append(discovered_path)
+
+    for path in candidate_paths:
+        if path.exists():
+            load_dotenv(dotenv_path=path, override=True)
+            return
+
+    raise SettingsError(
+        "Не найден файл .env с секретами. Проверьте наличие по путям: "
+        + ", ".join(str(path) for path in candidate_paths)
+    )
+
+
 @dataclass
 class Settings:
     token: str
