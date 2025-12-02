@@ -43,7 +43,14 @@ def update_camera_status(camera: Camera, ping_timeout: int) -> Camera:
     if not camera.get("enabled", True):
         return camera
 
-    new_status = "online" if ping_host(str(camera.get("ip")), timeout_seconds=ping_timeout) else "offline"
+    ip = str(camera.get("ip"))
+    name = camera.get("name", "Unknown")
+
+    logger.info("Pinging camera %s (%s)", name, ip)
+    is_online = ping_host(ip, timeout_seconds=ping_timeout)
+    logger.info("Ping result for %s (%s): %s", name, ip, "online" if is_online else "offline")
+
+    new_status = "online" if is_online else "offline"
 
     previous_status = camera.get("last_status", "unknown")
     camera["previous_status"] = previous_status
