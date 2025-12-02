@@ -2,6 +2,18 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+
+def _load_env_from_venv(env_path: Path = Path(".venv")) -> None:
+    """Populate ``os.environ`` with values from a ``.venv`` file if it exists.
+
+    Uses ``python-dotenv`` for parsing so comments, blank lines, and quoted
+    values are handled consistently with standard ``.env`` semantics.
+    """
+
+    load_dotenv(dotenv_path=env_path, override=True)
+
 
 class SettingsError(Exception):
     """Raised when required settings are missing or invalid."""
@@ -26,6 +38,8 @@ def load_settings() -> Settings:
     - CHECK_INTERVAL_SECONDS: monitoring interval (default: 300)
     - PING_TIMEOUT_SECONDS: ping timeout (default: 1)
     """
+
+    _load_env_from_venv()
 
     token = os.environ.get("TELEGRAM_TOKEN")
     chat_id_raw = os.environ.get("TELEGRAM_CHAT_ID")
