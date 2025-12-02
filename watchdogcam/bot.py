@@ -15,9 +15,9 @@ from telegram.ext import (
     filters,
 )
 
-from .config import Settings
-from .monitor import check_cameras
-from .storage import Camera, find_camera, read_cameras, write_cameras
+from config import Settings
+from monitor import check_cameras
+from storage import Camera, find_camera, read_cameras, write_cameras
 
 logger = logging.getLogger(__name__)
 

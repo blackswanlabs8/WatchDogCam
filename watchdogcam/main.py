@@ -1,8 +1,8 @@
 import asyncio
 import logging
 
-from .config import SettingsError, load_settings
-from .bot import run_bot
+from config import SettingsError, load_settings
+from bot import run_bot
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)

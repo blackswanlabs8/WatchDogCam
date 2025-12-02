@@ -4,9 +4,9 @@ from typing import List
 
 from telegram import Bot
 
-from .config import Settings
-from .ping import ping_host
-from .storage import Camera, read_cameras, write_cameras
+from config import Settings
+from ping import ping_host
+from storage import Camera, read_cameras, write_cameras
 
 logger = logging.getLogger(__name__)
 
