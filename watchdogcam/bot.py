@@ -304,7 +304,7 @@ async def scheduled_check(context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     settings: Settings = job.data["settings"]
-    bot = job.application.bot
+    bot = context.application.bot
     await check_cameras(settings, bot)
 
 
