@@ -72,7 +72,6 @@ async def check_cameras(settings: Settings, bot: Bot) -> List[str]:
     write_cameras(settings.cameras_file, cameras)
 
     unique_recipients = set(subscribers)
-    unique_recipients.add(settings.chat_id)
 
     for note in notifications:
         for recipient in unique_recipients:
