@@ -43,6 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "• /online – только рабочие камеры\n"
         "• /offline – только нерабочие камеры\n"
         "• /stats – статистика\n"
+        "• /refresh – обновить статусы камер\n"
         "• /add – добавить камеру\n"
         "• /edit – изменить камеру\n"
         "• /delete – удалить камеру"
@@ -266,6 +267,36 @@ async def manual_check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(message)
 
 
+async def refresh_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    settings: Settings = context.bot_data["settings"]
+    bot = context.bot
+
+    await check_cameras(settings, bot)
+    cameras = read_cameras(settings.cameras_file)
+    enabled_cameras = [c for c in cameras if c.get("enabled", True)]
+    online = _filter_cameras(enabled_cameras, "online")
+    offline = _filter_cameras(enabled_cameras, "offline")
+
+    lines = [
+        "🔄 Актуальные статусы камер",
+        f"Проверено: {len(enabled_cameras)}",
+        f"Работают: {len(online)}",
+        f"Не работают: {len(offline)}",
+    ]
+
+    if offline:
+        lines.append("")
+        lines.append("⚠️ Неработающие камеры:")
+        lines.extend(f"• {cam.get('name')} – {cam.get('ip')}" for cam in offline)
+
+    if online:
+        lines.append("")
+        lines.append("✅ Работают:")
+        lines.extend(f"• {cam.get('name')} – {cam.get('ip')}" for cam in online)
+
+    await update.message.reply_text("\n".join(lines))
+
+
 async def scheduled_check(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
     if not job:
@@ -286,6 +317,7 @@ def build_application(settings: Settings) -> Application:
     application.add_handler(CommandHandler("online", list_online))
     application.add_handler(CommandHandler("offline", list_offline))
     application.add_handler(CommandHandler("stats", stats))
+    application.add_handler(CommandHandler("refresh", refresh_info))
     application.add_handler(CommandHandler("check", manual_check))
 
     add_handler = ConversationHandler(
