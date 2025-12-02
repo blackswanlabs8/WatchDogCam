@@ -77,9 +77,9 @@ def load_settings() -> Settings:
     ping_timeout_raw = os.environ.get("PING_TIMEOUT_SECONDS")
 
     if not token:
-        raise SettingsError("TELEGRAM_TOKEN is not set")
+        raise SettingsError(f"TELEGRAM_TOKEN is not set (проверьте {env_path})")
     if not chat_id_raw:
-        raise SettingsError("TELEGRAM_CHAT_ID is not set")
+        raise SettingsError(f"TELEGRAM_CHAT_ID is not set (проверьте {env_path})")
 
     try:
         chat_id = int(chat_id_raw)
